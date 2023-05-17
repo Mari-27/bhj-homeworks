@@ -29,7 +29,7 @@ for (resizeButton of resizeButtons) {
     });
 };
 
-/* Код не срабатывает. Ошибка: p://127.0.0.1:5500/assets/css/style.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+
 
 for (colorButton of colorButtons) {
     colorButton.addEventListener('click', function (event) {
@@ -83,7 +83,7 @@ for (backgroundButton of backgroundButtons) {
     });
 };
 
-*/  
+
 
 
 
