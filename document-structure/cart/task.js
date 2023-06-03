@@ -1,87 +1,107 @@
-'use strict'
+'use strict';
+const cart = document.querySelector('.cart__products');
 
-const productInCart = Array.from(document.querySelectorAll('.cart__product'));
+let productsInCart = [];
 
 document.addEventListener('click', function (event) {
-
-    const cart = document.querySelector('.cart__products');
     const valueButtons = document.querySelectorAll('.product__quantity-control');
     const addButtons = document.querySelectorAll('.product__add');
 
     if (event.target.classList.contains('product__quantity-control')) {
         changeValue(event.target);
-        //Если произойдет клик на эдементе с этим классом вызывается функция changeValue  
     } else if (event.target.classList.contains('product__add')) {
         addToCart(event.target);
-        // если клик на product__add, то вызываем функцию addToCart  
     } else if (event.target.classList.contains('cart__product-delete')) {
         deleteFromCart(event.target.closest('.cart__product'));
     }
 
     function changeValue(target) {
-
-        //считывает текущее значение количества товара и увеличивает или уменьшает его на 1 в зависимости от того, на какой элемент был клик  
-
         let value = target.parentNode.querySelector('.product__quantity-value');
         let count = +value.innerText;
 
         if (target.classList.contains('product__quantity-control_inc')) {
             count++;
-            value.innerText = count;
         } else {
             if (count > 1) {
                 count--;
-                value.innerText = count;
             } else {
-                value.innerText = 1;
+                count = 1;
             }
         }
+
+        value.innerText = count;
     }
 
     function addToCart(target) {
-
-        //получает данные о добавляемом товаре и создает новый с соответсвующими данными  
-
         const product = target.closest('.product');
         const id = product.dataset.id;
         const countFromProduct = +target.parentNode.querySelector('.product__quantity-value').innerText;
 
-        let existingProduct = productInCart.find(item => item.dataset.id === id);
+        let existingProduct = productsInCart.find(item => item.id === id);
 
         if (existingProduct) {
-            let productCount = existingProduct.querySelector('.cart__product-count');
-            let total = +productCount.innerText;
-            productCount.innerText = total + countFromProduct;
+            existingProduct.count = existingProduct.count + countFromProduct;
+            updateCart(existingProduct.element);
         } else {
             const template = `
-            <div class="cart__product" data-id="${id}">
-                <img class="cart__product-image" src="${product.querySelector('.product__image').src}">
-                <div class="cart__product-count">${countFromProduct}</div>
-                <a href="#" class="cart__product-delete">&times;</a>
-            </div>
+                <div class="cart__product" data-id="${id}">
+                    <img class="cart__product-image" src="${product.querySelector('.product__image').src}">
+                    <div class="cart__product-count">${countFromProduct}</div>
+                    <a href="#" class="cart__product-delete">&times;</a>
+                </div>
             `;
+
             cart.insertAdjacentHTML('beforeend', template);
+
+            const element = cart.lastElementChild;
+            productsInCart.push({ id: id, count: countFromProduct, element: element });
         }
 
-        saveElement();
+        saveCart();
     }
 
-    function deleteFromCart(target) {
-        target.remove();
-        saveElement();
+    function updateCart(product) {
+        const countEl = product.querySelector('.cart__product-count');
+        const count = productsInCart.find(item => item.id === product.dataset.id).count;
+        countEl.innerText = count;
+    }
+
+    function deleteFromCart(product) {
+        productsInCart = productsInCart.filter(item => item.id !== product.dataset.id);
+        product.remove();
+        saveCart();
     }
 
 });
 
-function saveElement() {
-    const elem = document.querySelector('.cart__products').innerHTML;
-    localStorage.setItem('key', elem);
+function saveCart() {
+    const cartJson = JSON.stringify(productsInCart);
+    localStorage.setItem('productsInCart', cartJson);
 }
 
-function loadElement() {
-    if (localStorage.getItem('key')) { // добавлена проверка на наличие сохраненных данных 
-        document.querySelector('.cart__products').innerHTML = localStorage.getItem('key');
+function loadCart() {
+    if (localStorage.getItem('productsInCart')) {
+        productsInCart = JSON.parse(localStorage.getItem('productsInCart'));
+        productsInCart.forEach(el => {
+            const existingProduct = cart.querySelector(`[data-id="${el.id}"]`);
+            if (existingProduct) {
+                updateCart(existingProduct);
+            } else {
+                const template = `
+                    <div class="cart__product" data-id="${el.id}">
+                        <img class="cart__product-image" src="${el.element.querySelector('.product__image').src}">
+                        <div class="cart__product-count">${el.count}</div>
+                        <a href="#" class="cart__product-delete">&times;</a>
+                    </div>
+                `;
+
+                cart.insertAdjacentHTML('beforeend', template);
+
+                const element = cart.lastElementChild;
+                productsInCart[productsInCart.indexOf(el)].element = element;
+            }
+        })
     }
 }
 
-loadElement(); 
+loadCart();
