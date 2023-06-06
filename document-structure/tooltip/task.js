@@ -1,24 +1,23 @@
-'use strict';
+const tooltips = Array.from(document.getElementsByClassName('has-tooltip'));
+const div = document.createElement('div');
 
-const toolTipList = Array.from(document.querySelectorAll('a.has-tooltip')); 
-let innerTooltipText; 
+div.className = 'tooltip';
 
-toolTipList.forEach(function (tip) { 
-    tip.addEventListener('click', function (event) {
-        event.preventDefault(); 
-        const tooltip = tip.nextElementSibling; 
-        const topCoordinate = tip.getBoundingClientRect().top < window.innerHeight / 2 ? tip.getBoundingClientRect().bottom + 10 : tip.getBoundingClientRect().top - 30; 
-        const leftCoordinate = tip.getBoundingClientRect().left < window.innerWidth / 2 ? tip.getBoundingClientRect().left + 10 : tip.getBoundingClientRect().left - 10; 
-        const html = `<div class="tooltip tooltip_active" style="left: ${leftCoordinate}px; top: ${topCoordinate}px">${tip.title}</div>`; 
-        if (tooltip && event.target.innerText == innerTooltipText) { 
-            tooltip.classList.toggle('tooltip_active'); 
-        } else if (tooltip) { 
-            tooltip.style.left = `${leftCoordinate}px`; 
-            tooltip.style.top = `${topCoordinate}px`; 
-            tooltip.textContent = `${tip.title}`; 
-        } else { 
-            tip.insertAdjacentHTML('afterend', html); 
-        }; 
-        innerTooltipText = event.target.innerText; 
+tooltips.forEach(element => {
+    element.addEventListener('click', event => {
+        event.preventDefault();
+
+        target = event.target;
+
+        if (target.title === div.innerText) {
+            div.classList.toggle('tooltip_active');
+            return;
+        }
+
+        div.innerText = target.title;
+        const { bottom, left } = target.getBoundingClientRect();
+        div.style = `left: ${left}px; top: ${bottom}px`;
+        target.insertAdjacentElement('afterEnd', div);
+        div.classList.add('tooltip_active');
     });
-});  
+});

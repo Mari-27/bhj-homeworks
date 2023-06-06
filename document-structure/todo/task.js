@@ -1,51 +1,25 @@
-const taskInput = document.querySelector('#task__input');
-const addTaskButton = document.querySelector('#tasks__add');
-const taskList = document.querySelector('#tasks__list');
+const taskList = document.getElementById('tasks__list');
+const input = document.getElementById('task__input');
+const button = document.getElementById('tasks__add');
 
-addTaskButton.addEventListener('click', addTask);
-taskList.addEventListener('click', removeTask);
+function taskCreator() {
+    taskList.insertAdjacentHTML(
+        'afterEnd',
+        `<div class="task"><div class="task__title">${input.value}</div><a href="#" class="task__remove">&times;</a></div>`
+    );
 
-function addTask() {
-    const task = taskInput.value.trim();
+    input.value = '';
 
-    if (task) { // проверяем, что task не пустое
-        const taskItem = `
-            <div class="task">
-                <div class="task__title">
-                    ${task}
-                </div>
-                <a href="#" class="task__remove">&times;</a>
-            </div>
-        `;
-        taskList.insertAdjacentHTML('beforeend', taskItem);
-        taskInput.value = '';
-        saveTasks();
-    }
+    const closeButtons = document.querySelector('.task__remove');
+
+    closeButtons.addEventListener('click', event => {
+        event.target.closest('.task').remove();
+    })
 }
 
-function removeTask(event) {
-    if (event.target.classList.contains('task__remove')) {
-        const taskItem = event.target.closest('.task');
-        taskItem.remove();
-        saveTasks();
-    }
-}
-
-function saveTasks() {
-    localStorage.setItem('tasks', taskList.innerHTML);
-}
-
-function loadTasks() {
-    if (localStorage.getItem('tasks')) {
-        taskList.innerHTML = localStorage.getItem('tasks');
-    }
-}
-
-loadTasks();
-
-addTaskButton.addEventListener('click', addTask);
-taskInput.addEventListener('keydown', function(event) {
-    if (event.keyCode === 13) {
-        addTask();
+button.addEventListener('click', event => {
+    event.preventDefault();
+    if (input.value.trim() !== '') {
+        taskCreator();
     }
 });
