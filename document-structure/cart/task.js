@@ -11,10 +11,10 @@ function whoIsInCart(products, productId) {
 };
 
 function addToCart(id, img, quantity) {
-    let addedProduct = `<div class="cart__product" data-id="${id}">
-                            <img class="cart__product-image" src="${img}">
-                            <div class="cart__product-count">${quantity}</div>
-                            <a href="#" class="task__remove">&times;</a>
+    let addedProduct = `<div class="cart__product" data-id="${id}"> 
+                            <img class="cart__product-image" src="${img}"> 
+                            <div class="cart__product-count">${quantity}</div> 
+                            <a href="#" class="task__remove">&times;</a> 
                         </div>`;
     cart.insertAdjacentHTML('beforeend', addedProduct);
 
@@ -22,7 +22,7 @@ function addToCart(id, img, quantity) {
     removeBtn.addEventListener('click', function (event) {
         event.preventDefault();
         this.closest('.cart__product').remove();
-        if (document.querySelector('.cart__products').children.length === 0) { //не понял почему не работает в данном случае node.hasChildNodes() - по идее он должен вернуть false когда дочерних узлов не останется и условие должно сработать (карзина пустая станет невилимой)
+        if (!cart.hasChildNodes()) {
             document.querySelector('.cart').classList.add('hidden');
         };
     });
@@ -56,12 +56,14 @@ for (let addToCartButton of addToCartBtns) {
         const currentProductID = this.closest('.product').dataset.id;
         const currentProductImg = this.closest('.product').querySelector('.product__image').src;
         const currentProductQuantity = this.closest('.product__quantity').querySelector('.product__quantity-value').innerText;
-        const existedProduct = whoIsInCart(productsInCart, currentProductID);
+        const existingProduct = whoIsInCart(productsInCart, currentProductID);
 
-        if (existedProduct) {
-            existedProduct.querySelector('.cart__product-count').innerText = currentProductQuantity;
+        if (existingProduct) {
+            const currentProductCount = Number(currentProductQuantity);
+            const existingProductCount = Number(existingProduct.querySelector('.cart__product-count').innerText);
+            existingProduct.querySelector('.cart__product-count').innerText = currentProductCount + existingProductCount;
         } else {
             addToCart(currentProductID, currentProductImg, currentProductQuantity);
         }
     });
-};
+}; 
