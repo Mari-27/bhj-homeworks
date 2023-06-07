@@ -1,25 +1,33 @@
-const taskList = document.getElementById('tasks__list');
-const input = document.getElementById('task__input');
-const button = document.getElementById('tasks__add');
 
-function taskCreator() {
-    taskList.insertAdjacentHTML(
-        'afterEnd',
-        `<div class="task"><div class="task__title">${input.value}</div><a href="#" class="task__remove">&times;</a></div>`
-    );
+input = document.querySelector('#task__input');
+button = document.querySelector('#tasks__add');
+tasksList = document.querySelector('#tasks__list');
 
-    input.value = '';
 
-    const closeButtons = document.querySelector('.task__remove');
+function taskCreator(e) {
+    e.preventDefault();
+    if (!input.value.trim()) {
+        return;
+    }
+    tasksList.insertAdjacentHTML("beforeEnd", `<div class="task">
+    <div class="task__title">`
+        + input.value +
+        `</div>
+    <a href="#" class="task__remove">&times;</a>
+    </div> `);
 
-    closeButtons.addEventListener('click', event => {
-        event.target.closest('.task').remove();
-    })
+    document.body.addEventListener('click', removeTask);
+
+    input.value = "";
+
 }
 
-button.addEventListener('click', event => {
-    event.preventDefault();
-    if (input.value.trim() !== '') {
-        taskCreator();
-    }
-});
+
+function removeTask(e) {
+    const target = e.target.closest('.task');
+    if (!target) return;
+    target.remove();
+}
+
+
+button.addEventListener('click', taskCreator);
